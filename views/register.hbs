@@ -1,0 +1,17 @@
+<h1>Create an account</h1>
+
+{{#if error}}
+  <div class="alert alert-error">{{error}}</div>
+{{/if}}
+
+<form method="POST" action="/register">
+  <label for="username">Username</label>
+  <input type="text" id="username" name="username" required autocomplete="username" autofocus>
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" required autocomplete="new-password" minlength="6">
+
+  <button type="submit">Register</button>
+</form>
+
+<div class="link">Already have an account? <a href="/login">Sign in</a></div>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} — Demo Authentication App</title>
+  <link rel="icon" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --darkestblue: #141516;
+      --logo-darkblue: #122b32;
+      --darkblue1: #044E64;
+      --blue1: #006480;
+      --blue2: #047B9B;
+      --blue3: #319BB7;
+      --akzent1: #E8E880;
+      --akzent2: #F3F3C0;
+      --green1: #27a83d;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "DM Sans", sans-serif;
+      font-size: 1.1rem;
+      line-height: 1.2;
+      background: var(--darkestblue);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Header */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--logo-darkblue);
+      padding: 1rem 20%;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+    }
+
+    .site-header img {
+      height: 2.2rem;
+      width: auto;
+    }
+
+    .site-header span {
+      margin-left: 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      border-left: 1px solid rgba(255,255,255,0.25);
+      padding-left: 1.2rem;
+    }
+
+    /* Card */
+    .card {
+      background: var(--logo-darkblue);
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      margin-top: 5rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--akzent1);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Labels */
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    /* Inputs */
+    input[type=text],
+    input[type=password] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 0.2rem solid var(--akzent1);
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: var(--darkestblue);
+      color: #fff;
+      margin-bottom: 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type=text]:focus,
+    input[type=password]:focus {
+      border-color: var(--blue3);
+    }
+
+    /* Button */
+    button {
+      width: 100%;
+      padding: 0.6rem 2rem;
+      background: var(--akzent1);
+      color: var(--logo-darkblue);
+      border: 0.2rem solid var(--akzent1);
+      border-radius: 5rem;
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 140ms ease;
+      margin-top: 0.5rem;
+    }
+
+    button:hover {
+      background: transparent;
+      color: var(--akzent1);
+    }
+
+    button.logout-btn {
+      background: transparent;
+      color: var(--akzent1);
+      border-color: var(--akzent1);
+    }
+
+    button.logout-btn:hover {
+      background: var(--akzent1);
+      color: var(--logo-darkblue);
+    }
+
+    /* Link */
+    .link {
+      text-align: center;
+      margin-top: 1.2rem;
+      font-size: 0.875rem;
+      color: #A4A4A4;
+    }
+
+    .link a {
+      color: var(--akzent1);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.1s ease;
+    }
+
+    .link a:hover { color: var(--akzent2); }
+
+    /* Alerts */
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .alert-error {
+      background: rgba(185, 28, 28, 0.2);
+      color: #fca5a5;
+      border: 0.2rem solid rgba(185, 28, 28, 0.5);
+    }
+
+    .alert-success {
+      background: rgba(39, 168, 61, 0.15);
+      color: #86efac;
+      border: 0.2rem solid rgba(39, 168, 61, 0.4);
+    }
+
+    /* Welcome / dashboard */
+    .welcome { text-align: center; }
+    .welcome p { color: #A4A4A4; margin-bottom: 1.5rem; }
+
+    /* Push QR section on verify page */
+    .push-section {
+      background: var(--darkestblue);
+      border: 0.2rem solid var(--darkblue1);
+      border-radius: 5px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    .push-label { font-size: 0.875rem; font-weight: 600; color: #A4A4A4; margin-bottom: 0; }
+
+    .otpauth-url {
+      display: block;
+      margin: 0.75rem 0;
+      padding: 0.5rem 0.75rem;
+      background: var(--darkestblue);
+      border: 1px solid var(--darkblue1);
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.7rem;
+      word-break: break-all;
+      color: var(--akzent1);
+      text-decoration: none;
+    }
+
+    .otpauth-url:hover { border-color: var(--akzent1); }
+
+    .push-waiting { font-size: 0.875rem; color: #A4A4A4; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .push-success { font-size: 0.875rem; color: #86efac; }
+    .push-expired { font-size: 0.875rem; color: #fca5a5; }
+
+    .push-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--akzent1);
+      animation: pulse 1.4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    .divider {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin: 1.25rem 0; color: #A4A4A4; font-size: 0.8rem;
+    }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--darkblue1); }
+
+    /* 2FA box on dashboard */
+    .twofa-box {
+      background: var(--darkestblue);
+      border: 0.2rem solid var(--darkblue1);
+      border-radius: 5px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0 0;
+      text-align: left;
+    }
+
+    .twofa-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .twofa-label { font-weight: 600; font-size: 0.95rem; }
+
+    .twofa-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 5rem;
+    }
+
+    .twofa-on  { background: rgba(39,168,61,0.2);  color: #86efac; border: 1px solid rgba(39,168,61,0.4); }
+    .twofa-off { background: rgba(100,100,100,0.2); color: #A4A4A4; border: 1px solid rgba(100,100,100,0.4); }
+
+    .twofa-hint { color: #A4A4A4; font-size: 0.875rem; }
+
+    .btn-enable-2fa {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.5rem 1.5rem;
+      background: var(--akzent1);
+      color: var(--logo-darkblue);
+      border: 0.2rem solid var(--akzent1);
+      border-radius: 5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 140ms ease;
+    }
+
+    .btn-enable-2fa:hover { background: transparent; color: var(--akzent1); }
+
+    .btn-danger {
+      background: transparent;
+      color: #fca5a5;
+      border: 0.2rem solid rgba(185,28,28,0.6);
+      border-radius: 5rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 140ms ease;
+    }
+
+    .btn-danger:hover { background: rgba(185,28,28,0.2); }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <img src="/img/rasotec-logo-white.svg" alt="Rasotec">
+    <span>Demo Authentication App</span>
+  </header>
+  <div class="card">
+    {{{body}}}
+  </div>
+</body>
+</html>

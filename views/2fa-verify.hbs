@@ -1,0 +1,62 @@
+<h1>Two-Factor Auth</h1>
+
+{{#if error}}
+  <div class="alert alert-error">{{error}}</div>
+{{/if}}
+
+{{#if pushQrCode}}
+<div class="push-section">
+  <p class="push-label">Scan with your authenticator app</p>
+  <div style="text-align:center; margin:1rem 0;">
+    <img src="{{pushQrCode}}" alt="Push QR Code" style="width:160px; height:160px; border-radius:5px;">
+  </div>
+  <a class="otpauth-url" href="{{otpauthUrl}}">{{otpauthUrl}}</a>
+  <div id="push-status" class="push-waiting">
+    <span class="push-dot"></span> Waiting for push authentication…
+  </div>
+</div>
+
+<div class="divider"><span>or enter code manually</span></div>
+{{else}}
+<p style="color:#A4A4A4; margin-bottom:1.5rem; font-size:0.95rem;">
+  Enter the 6-digit code from your authenticator app.
+</p>
+{{/if}}
+
+<form method="POST" action="/2fa/verify">
+  <label for="token">Authentication code</label>
+  <input type="text" id="token" name="token" required autocomplete="one-time-code"
+    inputmode="numeric" maxlength="6" placeholder="000000"{{#unless pushQrCode}} autofocus{{/unless}}>
+  <button type="submit">Verify</button>
+</form>
+
+<div class="link"><a href="/login">Back to login</a></div>
+
+{{#if pushSessionId}}
+<script>
+  (function () {
+    const sessionId = "{{pushSessionId}}";
+    const statusEl = document.getElementById("push-status");
+
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch("/2fa/push/status?session=" + sessionId);
+        const data = await res.json();
+
+        if (data.status === "authenticated") {
+          clearInterval(poll);
+          statusEl.className = "push-success";
+          statusEl.textContent = "Authenticated! Redirecting…";
+          window.location.href = "/2fa/push/complete?session=" + sessionId;
+        } else if (data.status === "expired" || data.status === "invalid") {
+          clearInterval(poll);
+          statusEl.className = "push-expired";
+          statusEl.textContent = "Push session expired. Enter code manually.";
+        }
+      } catch (_) {
+        // network hiccup — keep polling
+      }
+    }, 2000);
+  })();
+</script>
+{{/if}}

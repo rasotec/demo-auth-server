@@ -1,0 +1,39 @@
+<div class="welcome">
+  <h1>Welcome, {{username}}!</h1>
+  <p>You are successfully logged in.</p>
+
+  {{#if error}}
+    <div class="alert alert-error" style="text-align:left; margin-top:1rem;">{{error}}</div>
+  {{/if}}
+  {{#if success}}
+    <div class="alert alert-success" style="text-align:left; margin-top:1rem;">{{success}}</div>
+  {{/if}}
+
+  <div class="twofa-box">
+    <div class="twofa-header">
+      <span class="twofa-label">Two-Factor Authentication</span>
+      {{#if totpEnabled}}
+        <span class="twofa-badge twofa-on">Enabled</span>
+      {{else}}
+        <span class="twofa-badge twofa-off">Disabled</span>
+      {{/if}}
+    </div>
+
+    {{#if totpEnabled}}
+      <p class="twofa-hint">Enter your authenticator code to disable 2FA.</p>
+      <form method="POST" action="/2fa/disable" style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+        <input type="text" name="token" required autocomplete="one-time-code"
+          inputmode="numeric" maxlength="6" placeholder="000000"
+          style="margin-bottom:0; flex:1;">
+        <button type="submit" class="btn-danger" style="width:auto; padding:0.6rem 1.2rem; margin-top:0;">Disable</button>
+      </form>
+    {{else}}
+      <p class="twofa-hint">Secure your account with Google Authenticator or any TOTP app.</p>
+      <a href="/2fa/setup" class="btn-enable-2fa">Enable 2FA</a>
+    {{/if}}
+  </div>
+
+  <form method="POST" action="/logout" style="margin-top:1rem;">
+    <button class="logout-btn" type="submit">Sign out</button>
+  </form>
+</div>
