@@ -61,7 +61,8 @@ function computePushHmac(
   expires: number,
   sessionId: string
 ): string {
-  const message = [account, issuer, endpoint, String(expires), sessionId].join("\n");
+  const sanitize = (s: string) => s.replace(/[\r\n]/g, "");
+  const message = [account, issuer, endpoint, String(expires), sessionId].map(sanitize).join("\n");
   return createHmac("sha256", totpSecret).update(message).digest("hex");
 }
 
