@@ -20,6 +20,11 @@ if (!SESSION_SECRET || SESSION_SECRET.length < 16) {
   throw new Error("SESSION_SECRET must be set in .env and be at least 16 characters");
 }
 
+const BASE_URL = process.env.BASE_URL;
+if (!BASE_URL) {
+  throw new Error("BASE_URL must be set in .env (e.g. https://your-domain.com)");
+}
+
 const app = express();
 const PORT = 3000;
 const SALT_ROUNDS = 12;
@@ -75,7 +80,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 },
-  })
+  }) as express.RequestHandler
 );
 
 // ── Home ──────────────────────────────────────────────────────────────────────
@@ -159,16 +164,17 @@ app.get("/2fa/verify", async (req: Request, res: Response) => {
   let otpauthUrlForDisplay: string | undefined;
 
   if (user?.totp_secret) {
-    pushSessionId = randomBytes(16).toString("hex");
+    const sid = randomBytes(16).toString("hex");
+    pushSessionId = sid;
     const expires = Math.floor((Date.now() + PUSH_SESSION_TTL_MS) / 1000);
-    const endpoint = `${req.protocol}://${req.get("host")}/2fa/push`;
+    const endpoint = `${BASE_URL}/2fa/push`;
     const hmac = computePushHmac(
       user.totp_secret,
       user.username,
       APP_NAME,
       endpoint,
       expires,
-      pushSessionId
+      sid
     );
 
     const params = new URLSearchParams({
@@ -176,21 +182,21 @@ app.get("/2fa/verify", async (req: Request, res: Response) => {
       issuer: APP_NAME,
       endpoint,
       expires: String(expires),
-      session: pushSessionId,
+      session: sid,
       hmac,
     });
     const otpauthUrl = `otpauth://totp/${encodeURIComponent(APP_NAME)}:${encodeURIComponent(user.username)}?${params}`;
     pushQrCode = await QRCode.toDataURL(otpauthUrl);
     otpauthUrlForDisplay = otpauthUrl;
 
-    pushSessions.set(pushSessionId, {
+    pushSessions.set(sid, {
       userId: user.id,
       username: user.username,
       expires,
       authenticated: false,
     });
 
-    req.session.pushSessionId = pushSessionId;
+    req.session.pushSessionId = sid;
   }
 
   res.render("2fa-verify", {
@@ -228,8 +234,7 @@ app.post("/2fa/verify", (req: Request, res: Response) => {
 // ── 2FA — Push (called by mobile app) ────────────────────────────────────────
 
 app.post("/2fa/push", (req: Request, res: Response) => {
-  const { version, session: sessionId, account, otp } = req.body as {
-    version?: string;
+  const { session: sessionId, account, otp } = req.body as {
     session?: string;
     account?: string;
     otp?: string;
@@ -314,7 +319,7 @@ app.get("/2fa/setup", async (req: Request, res: Response) => {
   const secret = authenticator.generateSecret();
   req.session.setupTotpSecret = secret;
 
-  const otpauth = authenticator.keyuri(req.session.username, APP_NAME, secret);
+  const otpauth = authenticator.keyuri(req.session.username!, APP_NAME, secret);
   const qrCode = await QRCode.toDataURL(otpauth);
 
   res.render("2fa-setup", {
@@ -360,7 +365,7 @@ app.post("/2fa/disable", (req: Request, res: Response) => {
 
 app.get("/dashboard", (req: Request, res: Response) => {
   if (!req.session.userId) return void res.redirect("/login");
-  const user = getUserById.get(req.session.userId) as User;
+  const user = getUserById.get(req.session.userId) as unknown as User;
   res.render("dashboard", {
     title: "Dashboard",
     username: req.session.username,
