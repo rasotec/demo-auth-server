@@ -53,6 +53,23 @@ interface PushSession {
 
 const pushSessions = new Map<string, PushSession>();
 
+function base32Decode(encoded: string): Buffer {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const clean = encoded.toUpperCase().replace(/=+$/, "");
+  let bits = 0;
+  let value = 0;
+  const output: number[] = [];
+  for (const char of clean) {
+    value = (value << 5) | alphabet.indexOf(char);
+    bits += 5;
+    if (bits >= 8) {
+      output.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(output);
+}
+
 function computePushHmac(
   totpSecret: string,
   account: string,
@@ -61,9 +78,9 @@ function computePushHmac(
   expires: number,
   sessionId: string
 ): string {
-  const sanitize = (s: string) => s.replace(/[\r\n]/g, "");
+  const sanitize = (s: string) => s.replaceAll(/[\r\n]/g, "");
   const message = [account, issuer, endpoint, String(expires), sessionId].map(sanitize).join("\n");
-  return createHmac("sha256", totpSecret).update(message).digest("hex");
+  return createHmac("sha256", base32Decode(totpSecret)).update(message).digest("hex");
 }
 
 // ── Express setup ─────────────────────────────────────────────────────────────
