@@ -9,7 +9,7 @@ A minimal TypeScript web app for exploring new authentication methods. It implem
 - **Database:** SQLite via Node's built-in `node:sqlite`
 - **Password hashing:** bcryptjs
 - **Sessions:** express-session
-- **TOTP / 2FA:** otplib + qrcode
+- **TOTP / 2FA:** otplib v12 + qrcode
 
 ## Getting started
 
