@@ -1,5 +1,7 @@
 # demo-auth-server
 
+**Live demo:** https://demo-auth.rasotec.com/
+
 A minimal TypeScript web app for exploring new authentication methods. It implements standard username/password login as a baseline, then layers on TOTP-based two-factor authentication including a [push extension](https://github.com/rasotec/otp_push) — where a QR code on the login page lets a mobile authenticator app approve the login without the user typing a code.
 
 ## Stack
