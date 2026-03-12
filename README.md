@@ -4,7 +4,7 @@ A minimal TypeScript web app for exploring new authentication methods. It implem
 
 ## Stack
 
-- **Runtime:** Node.js v23+
+- **Runtime:** Node.js v22 LTS
 - **Framework:** Express
 - **Database:** SQLite via Node's built-in `node:sqlite`
 - **Password hashing:** bcryptjs

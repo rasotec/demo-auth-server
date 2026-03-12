@@ -2,6 +2,9 @@
   "name": "demo-auth-server",
   "version": "1.0.0",
   "packageManager": "yarn@4.7.0",
+  "engines": {
+    "node": "^22"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
